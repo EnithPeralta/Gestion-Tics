@@ -6,7 +6,7 @@ from django.contrib import auth
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.shortcuts import render
 from appService.models import *
-from random import *
+import random
 from django.conf import settings
 from django.db import Error, transaction
 from django.core.mail import EmailMultiAlternatives
@@ -112,12 +112,12 @@ def registroSolicitud(request):
             caso.save()
             asunto = 'Registro Solicitud - Mesa De Servicio'
             mensaje = (f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos '
-                    f'informarle que su solicitud fue registrada en nuestro sistema con el número de caso '
-                    f'<b>{
-                        codigoCaso}</b>. <br><br> Su caso será gestionado en el menor tiempo posible, '
-                    f'según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.'
-                    f'<br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url: '
-                    'http://mesadeservicioctpicauca.sena.edu.co.')
+                       f'informarle que su solicitud fue registrada en nuestro sistema con el número de caso '
+                       f'<b>{
+                codigoCaso}</b>. <br><br> Su caso será gestionado en el menor tiempo posible, '
+                f'según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.'
+                f'<br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url: '
+                'http://mesadeservicioctpicauca.sena.edu.co.')
             thread = threading.Thread(
                 target=enviarCorreo, args=(asunto, mensaje, [user.email]))
             thread.start()
@@ -298,7 +298,7 @@ def listarSolicitudes(request):
     if request.user.is_authenticated:
         try:
             mensaje = ""
-            listarSolicitud = Solicitud.objects.filter(usuario=request.user)
+            listarSolicitud = Caso.objects.all()
         except Error as error:
             mensaje = str(error)
         retorno = {"mensaje": mensaje, "listarSolicitud": listarSolicitud}
@@ -314,7 +314,7 @@ def generarPassword():
         string.ascii_uppercase + string.digits + string.punctuation
     password = ''
     for i in range(longitud):
-        password += '' .join(random.choine(caracteres))
+        password += ''.join(random.choice(caracteres))
     return password
 
 
@@ -325,17 +325,16 @@ def registrarUsuario(request):
             apellidos = request.POST['apellido']
             correo = request.POST['correo']
             tipo = request.POST['cbTipo']
-            foto = request.POST['fileFoto']
+            foto = request.FILES.get('fileFoto')
             idRol = int(request.POST['cbRol'])
             with transaction.atomic():
-                user = Usuario(username=correo, first_name=nombres,
-                            last_name=apellidos, email=correo, tipoUsuario=tipo, foto=foto)
+                user = Usuario(username=correo, first_name=nombres, last_name=apellidos, email=correo, tipoUsuario=tipo, foto=foto)
                 user.save()
                 rol = Group.objects.get(pk=idRol)
                 user.groups.add(rol)
                 if (rol.name == 'Adminstrador'):
                     user.is_staff = True
-                user.save()          
+                user.save()
                 passwordGenerado = generarPassword()
                 print(f'password{passwordGenerado}')
                 user.set_password(passwordGenerado)
@@ -354,28 +353,41 @@ def registrarUsuario(request):
                     realizar solicitudes a la mesa de servicio del Centro. Url del aplicativo: \
                     http://mesadeservicioctpi.sena.edu.co.'
                 thread = threading.Thread(
-                target = enviarCorreo, args = (asunto, mensaje, [user.email]))
+                    target=enviarCorreo, args=(asunto, mensaje, [user.email]))
                 thread.start()
                 return redirect("/vistaGestionarUsuarios/", retorno)
         except Error as error:
             transaction.rollback()
             mensaje = f"{error}"
             retorno = {"mensaje": mensaje}
-            return render(request,'administrador/registarUsuario.html',retorno)
+            return render(request, 'administrador/registarUsuario.html', retorno)
     else:
         mensaje = "Debes iniciar Sesion"
         return render(request, "iniciarSesion.html", {"mensaje": mensaje})
 
+
 def vistaRegistrarUsuario(request):
     if request.user.is_authenticated:
         roles = Group.objects.all()
-        retorno = {"roles": roles, "user": request.user, 'tipoUsuario': tipoUsuario,
-                "rol": request.user.groups.get().name}
+        retorno = {"roles": roles, "user": request.user,
+                'tipoUsuario': tipoUsuario, "rol": request.user.groups.get().name}
         return render(request, "administrador/registrarUsuario.html", retorno)
     else:
         mensaje = "Debe iniciar sesión"
         return render(request, "registrarUsuario.html", {"mensaje": mensaje})
 
+
+def vistaGestionarUsuarios(request):
+    if request.user.is_authenticated:
+        usuarios = Usuario.objects.all()
+        retorno = {"usuarios": usuarios, "user": request.user,
+                "rol": request.user.groups.get().name}
+        return render(request, "administrador/gestionUsuario.html", retorno)
+    else:
+        mensaje = "Debe iniciar sesión"
+        return render(request, "iniciarSesion.html", {"mensaje": mensaje})
+
+    
 def recuperarClave(request):
     try:
         correo = request.POST['correo']
@@ -387,12 +399,14 @@ def recuperarClave(request):
             mensaje = 'Contraseña Actualiza Correctamente y enviada al Correo Electrónico'
             retorno = {'mensaje': mensaje}
             asunto = 'Recuperación de Contraseña Sistema Mesa de Servicio CTPI-CAUCA'
-            mensaje = f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos informarle que se ha generado una nueva contraseña para el ingreso del sistema. <br><b>Username:</b> {user.username}<br><b>Password:</b> {passwordGenerado}<br><br>Para comprobar ingrese al sistema haciendo uso de la nueva contraseña.'
-            thread = threading.Thread(target=enviarCorreo, args=(asunto, mensaje, [user.email]))
+            mensaje = f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos informarle que se ha generado una nueva contraseña para el ingreso del sistema. <br><b>Username:</b> {
+                user.username}<br><b>Password:</b> {passwordGenerado}<br><br>Para comprobar ingrese al sistema haciendo uso de la nueva contraseña.'
+            thread = threading.Thread(
+                target=enviarCorreo, args=(asunto, mensaje, [user.email]))
             thread.start()
         else:
             mensaje = 'No existe usuario con el correo ingresado. Revisar'
             retorno = {'mensaje': mensaje}
     except Exception as error:
         mensaje = str(error)
-    return render(request, 'iniciarSesion.html', {'mensaje': mensaje})
+    return render(request, 'iniciarSesion.html', retorno)

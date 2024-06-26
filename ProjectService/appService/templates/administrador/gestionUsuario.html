@@ -1,0 +1,50 @@
+{%extends "index.html" %} {%block encabezado%} {% include "encabezado.html"%}
+{%endblock%} {%block menu%} {% include "administrador/menuAdmin.html"%}
+{%endblock%} {%block contenido%}
+<h3 class="text-center fw-bold pt-4">GESTIONAR USUARIOS</h3>
+
+<div class="w-75 table-responsive" style="margin-bottom: 5rem; margin: 0 auto">
+  <a href="/vistaRegistrarUsuario/"
+    ><button class="btn btn-outline-info">
+      <i class="fa fa-user-plus"></i></button
+  ></a>
+  <br />
+  <br />
+  <table id="tblPersonas" class="table table-hover">
+    <thead>
+      <tr>
+        <th>Nombre Completo</th>
+        <th>Correo</th>
+        <th>Tipo</th>
+        <th>Foto</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for usuario in usuarios %} {% if usuario.is_superuser is False%}
+      <tr>
+        <td>{{usuario.first_name}} {{usuario.last_name}}</td>
+        <td>{{usuario.email}}</td>
+        <td>{{usuario.tipoUsuario}}</td>
+        <td>
+          {% if usuario.foto != "" %}
+          <img src="/media/{{usuario.foto}}" width="50" height="50" />
+          {% else %}
+          <img src="/media/" width="50" height="50" />
+          {% endif %}
+        </td>
+      </tr>
+      {%endif%} {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  new DataTable("#tblPersonas", {
+    layout: {
+      topStart: {
+        buttons: ["excel", "pdf", "print"],
+      },
+    },
+  });
+</script>
+{%endblock%} {%block piePagina%} {% include "piePagina.html"%} {%endblock%}

@@ -12,26 +12,15 @@
         <th>Oficina</th>
         <th>Fecha</th>
         <th>Estado</th>
-        <th>Accion</th>
       </tr>
     </thead>
     <tbody>
-      {% for solicitud in listarSolicitud%} 
+      {% for caso in listarSolicitud%}
       <tr>
-        <td>{{solicitud.descripcion}}</td>
-        <td>{{solicitud.oficina.nombre}}</td>
-        <td>{{solicitud.fechaHoraCreacion}}</td>
+        <td>{{caso.solicitud.descripcion}}</td>
+        <td>{{caso.solicitud.oficina.nombre}}</td>
+        <td>{{caso.solicitud.fechaHoraCreacion}}</td>
         <td>{{caso.estado}}</td>
-        <td>
-          <i
-            onclick="agregarIdCaso('{{caso.id}}')"
-            id="abrirModal"
-            class="fa fa-check-square-o"
-            style="color: #ffc400"
-            data-bs-toggle="modal"
-            data-bs-target="#modalTecnico"
-          ></i>
-        </td>
       </tr>
       {% endfor %}
     </tbody>

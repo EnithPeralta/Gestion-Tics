@@ -8,7 +8,7 @@
 {%block contenido%}
 <div class="d-flex justify-content-center align-items-center" style="margin-bottom: 7rem;">
     <form id="registrarUsuario" action="/registrarUsuario/" method="post" enctype="multipart/form-data"
-        class="was-validated w-75">
+        class=" w-75">
         {% csrf_token%}
         <br>
         <div class="border border-black rounded border-2 p-5 d-flex flex-column justify-content-center align-items-center" >
@@ -57,7 +57,7 @@
             <br>
             <div class="d-flex justify-content-center">
                 <button type="submit" class="btn btn-outline-info">Registrar</button>
-                <a href="/vistaRegistrarUsuario/"><button type="button" class="btn btn-danger mx-2">Cancelar</button></a>
+                <a href="/vistaRegistrarUsuario/"><button type="button" class="btn btn-outline-danger mx-2">Cancelar</button></a>
             </div>
         </form>
     </div>

@@ -3,10 +3,8 @@ from django.contrib.auth.models import AbstractUser
 
 tipoOficiona = [('Administrativo', "Administrativo"),
                 ('Formacion', "Formacion")]
-tipoUsuario = [('Administrador', "Administrador"),
-               ('Instructor', "Instructor")]
-estadoCaso = [('Solicitada', 'Solicitada'), ('En Proceso',
-                                             'En Proceso'), ('Finalizada', 'Finalizada')]
+tipoUsuario = [('Administrador', "Administrador"),('Instructor', "Instructor")]
+estadoCaso = [('Solicitada', 'Solicitada'), ('En Proceso','En Proceso'), ('Finalizada', 'Finalizada')]
 tipoSolucion = [('Parcial', 'Parcial'), ('Definitiva', 'Definitiva')]
 
 
