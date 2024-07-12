@@ -20,6 +20,8 @@ urlpatterns = [
     path('vistaRegistrarUsuario/', views.vistaRegistrarUsuario),
     path('registrarUsuario/', views.registrarUsuario),
     path('recuperarClave/', views.recuperarClave),
+    path('generarGrafica/',views.generarGrafica),
+    path('pdfSolicitud/',views.generarPdfSolicitd),
     path('salir/', views.salir)
 ]
 if settings.DEBUG:

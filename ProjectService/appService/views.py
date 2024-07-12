@@ -15,6 +15,12 @@ import threading
 from smtplib import SMTPException
 import string
 from django.contrib.auth.models import Group
+from django.db.models import Count
+import matplotlib.pyplot as plt 
+import os
+from django.db.models.functions import ExtractMonth
+
+
 # Create your views here.
 
 
@@ -410,3 +416,47 @@ def recuperarClave(request):
     except Exception as error:
         mensaje = str(error)
     return render(request, 'iniciarSesion.html', retorno)
+
+def generarGrafica(request):
+    try:
+        solicitudes = Solicitud.objects.annotate(month=ExtractMonth('fechaHoraCreacion'))\
+            .values('month')\
+            .annotate(cantidad=Count('id'))\
+            .values('month', 'cantidad')
+        """ meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"] """
+        meses = []
+        cantidades = []
+        
+        for s in solicitudes:
+            meses.append(s['month'])
+            cantidades.append(s['cantidad'])
+
+        plt.figure(figsize=(10, 5))
+        plt.title("Cantidad de Solicitudes por Mes")
+        plt.xlabel("Mes")
+        plt.ylabel("Cantidad")
+                
+        plt.bar(meses, cantidades)
+        
+        rutaImagen = os.path.join(settings.MEDIA_ROOT, "grafica.png")
+        
+        plt.savefig(rutaImagen)
+        
+        context = {'meses': meses, 'cantidades': cantidades}
+        return render(request, "administrador/grafica.html", context)
+    
+    except Exception as error:
+        mensaje = f"{error}"        
+        return render(request, "administrador/grafica.html", {"error": mensaje})
+    
+def generarPdfSolicitd(request):
+    from appService.pdfSolicitud import Pdf
+    solucitudes = Solicitud.objects.all()
+    doc = Pdf()
+    doc.alias_nb_pages()
+    doc.add_page()
+    doc.set_font("Arial","B",12)
+    doc.mostrarDatos(solucitudes)
+    doc.output(f"media/solicitudes.pdf")
+    
+    return render(request,'administrador/pdf.html')
