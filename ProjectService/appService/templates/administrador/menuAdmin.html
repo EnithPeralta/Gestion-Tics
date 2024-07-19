@@ -10,7 +10,12 @@
           href="#"
           data-bs-toggle="dropdown"
         >
-        <img src="/media/{{ usuario.foto }}" alt="Foto" style="width: 40px" class="rounded-pill" />
+          <img
+            src="/media/{{ usuario.foto }}"
+            alt="Foto"
+            style="width: 40px"
+            class="rounded-pill"
+          />
         </a>
         <ul class="dropdown-menu" style="width: 300px">
           <li>
@@ -29,11 +34,11 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/listarCasosAsignar/">
-              <ion-icon name="list-outline"></ion-icon> Lista Casos</a>
+              <ion-icon name="list-outline"></ion-icon> Lista Casos</a
+            >
           </li>
           <li>
-            <a href="/vistaGestionarUsuarios/" class="nav-link"
-              >
+            <a href="/vistaGestionarUsuarios/" class="nav-link">
               <ion-icon name="people-outline"></ion-icon> Gestion Usuarios</a
             >
           </li>
@@ -46,8 +51,16 @@
               ><ion-icon name="reader-outline"></ion-icon> Reportes</a
             >
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/generarGrafica/">Grafica Estadistica</a></li>
-              <li><a class="dropdown-item" href="/pdfSolicitud/">Reportes PDF Solicitud</a></li>
+              <li>
+                <a class="dropdown-item" href="/generarGrafica/"
+                  >Grafica Estadistica</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" href="/pdfSolicitud/"
+                  >Reportes PDF Solicitud</a
+                >
+              </li>
             </ul>
           </li>
           <li class="nav-item">

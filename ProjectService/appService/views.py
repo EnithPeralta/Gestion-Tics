@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate
 from django.contrib import auth
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from appService.models import *
 import random
@@ -16,10 +16,10 @@ from smtplib import SMTPException
 import string
 from django.contrib.auth.models import Group
 from django.db.models import Count
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import os
 from django.db.models.functions import ExtractMonth
-
+import matplotlib
 
 # Create your views here.
 
@@ -118,8 +118,8 @@ def registroSolicitud(request):
             caso.save()
             asunto = 'Registro Solicitud - Mesa De Servicio'
             mensaje = (f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos '
-                       f'informarle que su solicitud fue registrada en nuestro sistema con el número de caso '
-                       f'<b>{
+                    f'informarle que su solicitud fue registrada en nuestro sistema con el número de caso '
+                    f'<b>{
                 codigoCaso}</b>. <br><br> Su caso será gestionado en el menor tiempo posible, '
                 f'según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.'
                 f'<br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url: '
@@ -182,7 +182,7 @@ def listarCasos(request):
         mensaje = str(error)
 
     retorno = {"listarCasos": listarCasos,
-               "tecnicos": tecnicos, "mensaje": mensaje}
+            "tecnicos": tecnicos, "mensaje": mensaje}
     return render(request, "administrador/listaCasos.html", retorno)
 
 
@@ -238,7 +238,7 @@ def listarCasosAsignados(request):
         except Error as error:
             mensaje = str(error)
         retorno = {"mensaje": mensaje, "listarCasos": listarCasos,
-                   "listaTipoSolucion": tipoSolucion, "listarTipoProcedimiento": listarTipoProcedimiento}
+                "listaTipoSolucion": tipoSolucion, "listarTipoProcedimiento": listarTipoProcedimiento}
         return render(request, "tecnico/listarAsignados.html", retorno)
     else:
         mensaje = "Debes iniciar Sesion"
@@ -334,7 +334,8 @@ def registrarUsuario(request):
             foto = request.FILES.get('fileFoto')
             idRol = int(request.POST['cbRol'])
             with transaction.atomic():
-                user = Usuario(username=correo, first_name=nombres, last_name=apellidos, email=correo, tipoUsuario=tipo, foto=foto)
+                user = Usuario(username=correo, first_name=nombres,
+                            last_name=apellidos, email=correo, tipoUsuario=tipo, foto=foto)
                 user.save()
                 rol = Group.objects.get(pk=idRol)
                 user.groups.add(rol)
@@ -393,7 +394,7 @@ def vistaGestionarUsuarios(request):
         mensaje = "Debe iniciar sesión"
         return render(request, "iniciarSesion.html", {"mensaje": mensaje})
 
-    
+
 def recuperarClave(request):
     try:
         correo = request.POST['correo']
@@ -417,46 +418,112 @@ def recuperarClave(request):
         mensaje = str(error)
     return render(request, 'iniciarSesion.html', retorno)
 
-def generarGrafica(request):
-    try:
-        solicitudes = Solicitud.objects.annotate(month=ExtractMonth('fechaHoraCreacion'))\
-            .values('month')\
-            .annotate(cantidad=Count('id'))\
-            .values('month', 'cantidad')
-        """ meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"] """
-        meses = []
-        cantidades = []
-        
-        for s in solicitudes:
-            meses.append(s['month'])
-            cantidades.append(s['cantidad'])
+# def generarGrafica(request):
+#     try:
+#         solicitudes = Solicitud.objects.annotate(month=ExtractMonth('fechaHoraCreacion'))\
+#             .values('month')\
+#             .annotate(cantidad=Count('id'))\
+#             .values('month', 'cantidad')
+#         """ meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre", "Diciembre"] """
+#         meses = []
+#         cantidades = []
 
-        plt.figure(figsize=(10, 5))
-        plt.title("Cantidad de Solicitudes por Mes")
-        plt.xlabel("Mes")
-        plt.ylabel("Cantidad")
-                
-        plt.bar(meses, cantidades)
-        
-        rutaImagen = os.path.join(settings.MEDIA_ROOT, "grafica.png")
-        
+#         for s in solicitudes:
+#             meses.append(s['month'])
+#             cantidades.append(s['cantidad'])
+
+#         plt.figure(figsize=(10, 5))
+#         plt.title("Cantidad de Solicitudes por Mes")
+#         plt.xlabel("Mes")
+#         plt.ylabel("Cantidad")
+
+#         plt.bar(meses, cantidades)
+
+#         rutaImagen = os.path.join(settings.MEDIA_ROOT, "grafica.png")
+
+#         plt.savefig(rutaImagen)
+
+#         context = {'meses': meses, 'cantidades': cantidades}
+#         return render(request, "administrador/grafica.html", context)
+
+#     except Exception as error:
+#         mensaje = f"{error}"
+#         return render(request, "administrador/grafica.html", {"error": mensaje})
+
+
+def generarGrafica(request):
+    if request.user.is_authenticated:
+        matplotlib.use('agg')
+        listaOficina = Oficina.objects.all()
+        listaSolicitudes = Solicitud.objects.all()
+        solicitudesPorAmbiente = Solicitud.objects.values('oficina')\
+            .annotate(cantidad=Count('id'))
+        xAmbiente = []
+        yCantidadAmbiente = []
+        for ambiente in listaOficina:
+            for solicitud in listaSolicitudes:
+                if ambiente.id == solicitud.oficina.id:
+                    xAmbiente.append(ambiente)
+                    yCantidadAmbiente.append(0)
+                    break
+                i = 0
+        colores = []
+        for ambiente in xAmbiente:
+            for solicitud in listaSolicitudes:
+                if ambiente.id == solicitud.oficina.id:
+                    yCantidadAmbiente[i] += 1
+                    color = "#" + \
+                        ''.join([random.choice('0123456789ABCDEF')
+                                for j in range(6)])
+                    colores.append(color)
+            i += 1
+            textprops = {"fontsize": 6}
+        plt.title("Cantidad de Solicitudes Realizadas \n por Ambiente")
+        plt.pie(yCantidadAmbiente, labels=xAmbiente,
+                autopct="%0.1f %%", textprops=textprops, colors=colores)
+        rutaImagen = os.path.join(settings.MEDIA_ROOT + "\\" + "grafica1.png")
         plt.savefig(rutaImagen)
-        
-        context = {'meses': meses, 'cantidades': cantidades}
-        return render(request, "administrador/grafica.html", context)
-    
-    except Exception as error:
-        mensaje = f"{error}"        
-        return render(request, "administrador/grafica.html", {"error": mensaje})
-    
+        plt.close()
+        solicitudes = Solicitud.objects.values(mes=ExtractMonth('fechaHoraCreacion'))\
+            .annotate(cantidad=Count('id'))
+        yCantidadMes = []
+        meses = []
+        textoMes = ['Enero', 'Febrero', 'Marzo',
+                    'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto']
+        colores = []
+        for solicitud in solicitudes:
+            if solicitud["mes"] is not None:
+                # meses.append(calendar.month_name[solicitud['mes']])
+                meses.append(textoMes[solicitud['mes']-1])
+                yCantidadMes.append(solicitud['cantidad'])
+                color = "#" + \
+                    ''.join([random.choice('0123456789ABCDEF')
+                            for j in range(6)])
+                colores.append(color)
+            else:
+                meses.append('Unknow')
+                yCantidadMes.append(0)
+
+        textprops = {"fontsize": 10}
+        plt.title("Cantidad de Solicitudes Realizadas \n por Mes")
+        plt.bar(meses, yCantidadMes, color=colores)
+        rutaImagen = os.path.join(settings.MEDIA_ROOT + "\\" + "grafica2.png")
+        plt.savefig(rutaImagen)
+        plt.close()
+        return render(request, "administrador/grafica.html")
+    else:
+        mensaje = "Debe iniciar sesión"
+        return render(request, "iniciarSesion.html", {"mensaje": mensaje})
+
+
 def generarPdfSolicitd(request):
     from appService.pdfSolicitud import Pdf
     solucitudes = Solicitud.objects.all()
     doc = Pdf()
     doc.alias_nb_pages()
     doc.add_page()
-    doc.set_font("Arial","B",12)
+    doc.set_font("Arial", "B", 12)
     doc.mostrarDatos(solucitudes)
     doc.output(f"media/solicitudes.pdf")
-    
-    return render(request,'administrador/pdf.html')
+
+    return render(request, 'administrador/pdf.html')
