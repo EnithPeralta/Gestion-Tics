@@ -152,3 +152,11 @@ EMAIL_HOST_USER = 'mosqueraperalta12@gmail.com'
 EMAIL_HOST_PASSWORD = 'yyckustmvacnsnci'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS":"rest_framework.schemas.coreapi.AutoSchema",
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = ['*']
