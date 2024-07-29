@@ -119,8 +119,7 @@ def registroSolicitud(request):
             asunto = 'Registro Solicitud - Mesa De Servicio'
             mensaje = (f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos '
                     f'informarle que su solicitud fue registrada en nuestro sistema con el número de caso '
-                    f'<b>{
-                codigoCaso}</b>. <br><br> Su caso será gestionado en el menor tiempo posible, '
+                    f'<b>{codigoCaso}</b>. <br><br> Su caso será gestionado en el menor tiempo posible, '
                 f'según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.'
                 f'<br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url: '
                 'http://mesadeservicioctpicauca.sena.edu.co.')
@@ -406,8 +405,7 @@ def recuperarClave(request):
             mensaje = 'Contraseña Actualiza Correctamente y enviada al Correo Electrónico'
             retorno = {'mensaje': mensaje}
             asunto = 'Recuperación de Contraseña Sistema Mesa de Servicio CTPI-CAUCA'
-            mensaje = f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos informarle que se ha generado una nueva contraseña para el ingreso del sistema. <br><b>Username:</b> {
-                user.username}<br><b>Password:</b> {passwordGenerado}<br><br>Para comprobar ingrese al sistema haciendo uso de la nueva contraseña.'
+            mensaje = f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos informarle que se ha generado una nueva contraseña para el ingreso del sistema. <br><b>Username:</b> {user.username}<br><b>Password:</b> {passwordGenerado}<br><br>Para comprobar ingrese al sistema haciendo uso de la nueva contraseña.'
             thread = threading.Thread(
                 target=enviarCorreo, args=(asunto, mensaje, [user.email]))
             thread.start()
