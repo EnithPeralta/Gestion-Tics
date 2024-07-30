@@ -21,21 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'django-insecure-@@e9r!+y%e2f#fwg#7pju5z4eu!c!_2ydnlu8%+$3!z)i^fcvy'
+SECRET_KEY = 'django-insecure-@@e9r!+y%e2f#fwg#7pju5z4eu!c!_2ydnlu8%+$3!z)i^fcvy'
 
-SECRET_KEY = os.environ.get('SECRET_KEY ', default='Error')
+#SECRET_KEY = os.environ.get('SECRET_KEY ', default='Error')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 
 DEBUG = 'RENDER' not in os.environ
 
+CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = []
-
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,11 +46,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'appService',
     'bootstrap5',
+    'rest_framework',
+    'corsheaders',
+    'coreapi',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -141,13 +144,9 @@ USE_TZ = True
 
 #STATIC_ROOT = os.path.join(BASE_DIR, '/static/')
 
-#MEDIA_URL = '/media/'
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATIC_URL = '/static/'
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILE_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -170,3 +169,8 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = ['*']
+
+STATIC_URL = '/static/'
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILE_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
