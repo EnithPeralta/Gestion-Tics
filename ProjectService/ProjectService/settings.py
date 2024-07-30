@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'ProjectService.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'squile': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
@@ -94,7 +94,7 @@ DATABASES = {
         'NAME': 'ProjectService',
         'CLIENT': {'host': 'mongodb+srv://mosqueraperalta12:maria12345@cluster0.ajfvify.mongodb.net/ProjectService?retryWrites=true&w=majority'}
     },
-    'default': {
+    'Mysql': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'projectservices',
         'USER': 'maria',
