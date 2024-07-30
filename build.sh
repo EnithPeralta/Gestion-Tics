@@ -3,5 +3,5 @@
 source venv/Scripts/activate
 set -o errexit
 pip install -r requirements.txt
-python manage.py collectstatic --noinput
-python manage.py migrate
+python ./ProjectService/manage.py collectstatic --no-input
+python ./ProjectService/manage.py migrate
